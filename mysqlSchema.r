@@ -2,7 +2,7 @@ library("ggplot2")
 library("reshape2")
 library("RMySQL")
 
-connection<-dbConnect(MySQL(), user="root", password="",host="127.0.0.1",port=3306,dbname='')
+connection<-dbConnect(MySQL(), user="myuser", password="mypassword",host="127.0.0.1",port=3306,dbname='')
 
 pdf("/Users/sciruela/Documents/mysqlSchema/graph1.pdf")
 query<-"SELECT TABLE_SCHEMA,SUM(DATA_LENGTH) SCHEMA_LENGTH FROM information_schema.TABLES WHERE TABLE_SCHEMA!='information_schema' GROUP BY TABLE_SCHEMA"
@@ -33,7 +33,7 @@ result$LEFTOVER<-100-result$USED
 result<-within(result,TABLE_NAME<-factor(TABLE_NAME,levels=sort(TABLE_NAME,decreasing=TRUE)))
 result<-melt(result,id.vars=c("TABLE_SCHEMA","TABLE_NAME"),variable.name='TYPE',value.name='PROPORTION',na.rm=TRUE)
 p<-ggplot(result)
-p<-p+geom_bar(aes(x=TABLE_NAME,y=PROPORTION,fill=TYPE),stat='identity')
+p<-p+geom_bar(aes(x=TABLE_NAME,y=value,fill=variable),stat='identity')
 p<-p+coord_flip()+facet_wrap(~TABLE_SCHEMA,scales='free')
 p<-p+scale_fill_manual(values=c("USED"='#DD0000',LEFTOVER='#AAAAAA'))
 p<-p+xlab('')+ylab('')+opts(title="Tables' usage")
@@ -50,7 +50,7 @@ result$LEFTOVER<-100-result$USED
 result$TABLE_SCHEMA<-reorder(result$TABLE_SCHEMA,result$USED)
 result<-melt(result,id.vars=c("TABLE_SCHEMA"),variable.name='TYPE',value.name='PROPORTION',na.rm=TRUE)
 p<-ggplot(result)
-p<-p+geom_bar(aes(x=TABLE_SCHEMA,y=PROPORTION,fill=TYPE),stat='identity')
+p<-p+geom_bar(aes(x=TABLE_SCHEMA,y=value,fill=variable),stat='identity')
 p<-p+coord_flip()
 p<-p+scale_fill_manual(values=c("USED"='#DD0000',LEFTOVER='#AAAAAA'))
 p<-p+xlab("")+ylab("")+opts(title="Largest Usage")
